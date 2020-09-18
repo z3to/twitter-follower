@@ -14,12 +14,6 @@ const db = low(adapter)
 db.defaults({ currentUser: [], changes: [] })
   .write()
 
-const USERNAME = process.env.USERNAME
-const PASSWORD = process.env.PASSWORD
-const USER_ID = process.env.USER_ID
-
-let BEARER
-
 function timestamp () {
   return format(new Date(), 'HH:mm:ss dd-MM-yyyy')
 }
