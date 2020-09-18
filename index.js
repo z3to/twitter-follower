@@ -21,75 +21,75 @@ const USER_ID = process.env.USER_ID
 let BEARER
 
 function timestamp () {
-	return format(new Date(), 'HH:mm:ss dd-MM-yyyy')
+  return format(new Date(), 'HH:mm:ss dd-MM-yyyy')
 }
 
 function formatDate (date) {
-	return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
 }
 
 function parseDate (date) {
-	return parse(date, 'EEE MMM dd kk:mm:ss xxxx yyyy', new Date())
+  return parse(date, 'EEE MMM dd kk:mm:ss xxxx yyyy', new Date())
 }
 
 function compareLists (newList, oldList) {
-	const left = without(oldList, ...newList)
-	const join = without(newList, ...oldList)
+  const left = without(oldList, ...newList)
+  const join = without(newList, ...oldList)
 
-	const user = {}
-	forEach(left, id => {
-		user[id] = 'left'
-	})
-	forEach(join, id => {
-		user[id] = 'join'
-	})
-	return user
+  const user = {}
+  forEach(left, id => {
+    user[id] = 'left'
+  })
+  forEach(join, id => {
+    user[id] = 'join'
+  })
+  return user
 }
 
 function processList (newUser) {
-	const oldUser = db.get('currentUser').value()
+  const oldUser = db.get('currentUser').value()
 
-	const changes = compareLists(newUser, oldUser)
+  const changes = compareLists(newUser, oldUser)
 
-	db.set('currentUser', newUser).write()
+  db.set('currentUser', newUser).write()
 
-	console.log(`${timestamp()}: ${newUser.length} user in total. ${size(changes)} changes.`)
+  console.log(`${timestamp()}: ${newUser.length} user in total. ${size(changes)} changes.`)
 
-	if (size(changes)) {
-		getUserInfo(changes, addChanges)
-	}
+  if (size(changes)) {
+    getUserInfo(changes, addChanges)
+  }
 }
 
 function addChanges (changes, details) {
-	forEach(changes, (action, id) => {
-		const user = find(details, { id_str: id })
+  forEach(changes, (action, id) => {
+    const user = find(details, { id_str: id })
 
-  	const detail = {
-  		action,
-  		id,
-  		name: get(user, 'name'),
-	  	screen_name: get(user, 'screen_name'),
-	  	url: get(user, 'url'),
-	  	followers_count: get(user, 'followers_count'),
-	  	friends_count: get(user, 'friends_count'),
-	  	listed_count: get(user, 'listed_count'),
-	  	created_at: formatDate(parseDate(get(user, 'created_at'))),
-	  	statuses_count: get(user, 'statuses_count'),
-	  	following: get(user, 'following'),
-	  	verified: get(user, 'verified'),
-	  	location: get(user, 'location'),
-	  	description: get(user, 'description'),
-	  	timestamp: formatDate(new Date())
-  	}
+    const detail = {
+      action,
+      id,
+      name: get(user, 'name'),
+      screen_name: get(user, 'screen_name'),
+      url: get(user, 'url'),
+      followers_count: get(user, 'followers_count'),
+      friends_count: get(user, 'friends_count'),
+      listed_count: get(user, 'listed_count'),
+      created_at: formatDate(parseDate(get(user, 'created_at'))),
+      statuses_count: get(user, 'statuses_count'),
+      following: get(user, 'following'),
+      verified: get(user, 'verified'),
+      location: get(user, 'location'),
+      description: get(user, 'description'),
+      timestamp: formatDate(new Date())
+    }
 
-  	console.log(`${timestamp()}: ${detail.screen_name || 'unknown'}: ${action}`)
-  	db.get('changes').push(detail).write()
-  	logToGoogleForm(detail)
-	})
+    console.log(`${timestamp()}: ${detail.screen_name || 'unknown'}: ${action}`)
+    db.get('changes').push(detail).write()
+    logToGoogleForm(detail)
+  })
 }
 
 new CronJob('0 * * * *', function() {
-	authRequest(() => {
-		getList(processList)
-	})
+  authRequest(() => {
+    getList(processList)
+  })
 }, null, true);
