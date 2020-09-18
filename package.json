@@ -1,0 +1,19 @@
+{
+  "name": "twitter-follower",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jonas <jonas@parnow.de>",
+  "license": "ISC",
+  "dependencies": {
+    "cron": "^1.8.2",
+    "date-fns": "^2.16.1",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.20",
+    "lowdb": "^1.0.0",
+    "request": "^2.88.2"
+  }
+}
