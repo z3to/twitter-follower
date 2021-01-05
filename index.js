@@ -14,12 +14,20 @@ const db = low(adapter)
 db.defaults({ currentUser: [], changes: [] })
   .write()
 
+function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
 function timestamp () {
   return format(new Date(), 'HH:mm:ss dd-MM-yyyy')
 }
 
 function formatDate (date) {
-  return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  if (isValidDate(date)) {
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+  } else {
+    return date
+  }
 }
 
 function parseDate (date) {
@@ -41,6 +49,7 @@ function compareLists (newList, oldList) {
 }
 
 function processList (newUser) {
+  console.log('Processing list')
   const oldUser = db.get('currentUser').value()
 
   const changes = compareLists(newUser, oldUser)
@@ -81,6 +90,10 @@ function addChanges (changes, details) {
     logToGoogleForm(detail)
   })
 }
+
+authRequest(() => {
+  getList(processList)
+})
 
 new CronJob('0 * * * *', function() {
   authRequest(() => {
